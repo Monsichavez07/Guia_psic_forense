@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expediente: Psicología Forense</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --manila:#e4d8b4;
+    --manila-dark:#cbbb8a;
+    --paper:#f4ecd8;
+    --paper-line:#d8c9a3;
+    --stamp-red:#9c2b2b;
+    --stamp-red-dark:#7a1f1f;
+    --stamp-green:#2f5d3a;
+    --gold:#a9822f;
+    --muted:#6b5f47;
+    --ink:#1c2127;
+    --ink-soft:#2b323c;
+  }
+  html[data-theme="dark"]{
+    --page-1:#2a2f38;
+    --page-2:#14171c;
+    --header-eyebrow:#8a94a3;
+    --header-title:#efe6cf;
+    --header-sub:#7d8794;
+    --footer-color:#5f6773;
+  }
+  html[data-theme="light"]{
+    --page-1:#f3f0e8;
+    --page-2:#e3ddcd;
+    --header-eyebrow:#8a7d5c;
+    --header-title:#2b2416;
+    --header-sub:#7a6d4f;
+    --footer-color:#7a6d4f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: radial-gradient(ellipse at top, var(--page-1), var(--page-2) 70%);
+    font-family:'IBM Plex Sans', sans-serif;
+    color:var(--ink);
+    padding:32px 16px 80px;
+    transition: background .3s ease;
+  }
+  .wrap{ max-width:820px; margin:0 auto; }
+
+  .top-bar{
+    display:flex; justify-content:flex-end; margin-bottom:4px;
+  }
+  .theme-toggle{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.06em;
+    background: rgba(255,255,255,.08);
+    color: var(--header-title);
+    border:1px solid rgba(255,255,255,.25);
+    padding:8px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    transition: background .15s ease;
+  }
+  html[data-theme="light"] .theme-toggle{
+    background: rgba(0,0,0,.05);
+    border-color: rgba(0,0,0,.15);
+  }
+  .theme-toggle:hover{ background: rgba(255,255,255,.16); }
+  html[data-theme="light"] .theme-toggle:hover{ background: rgba(0,0,0,.09); }
+
+  .case-header{
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .case-header .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:.25em;
+    font-size:12px;
+    color:var(--header-eyebrow);
+    text-transform:uppercase;
+  }
+  .case-header h1{
+    font-family:'Special Elite', monospace;
+    font-size:clamp(28px,5vw,44px);
+    margin:8px 0 4px;
+    color:var(--header-title);
+    text-shadow: 0 0 18px rgba(233,201,120,.15);
+  }
+  .case-header .sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--header-sub);
+  }
+
+  .folder{
+    background: linear-gradient(180deg, var(--manila), var(--manila-dark));
+    border-radius: 4px 14px 14px 4px;
+    box-shadow: 0 18px 40px -12px rgba(0,0,0,.6), 0 0 0 1px rgba(0,0,0,.15);
+    position:relative;
+    padding: 6px;
+  }
+  .folder:before{
+    content:"EXPEDIENTE PSICOLÓGICO-FORENSE";
+    position:absolute;
+    top:-13px; left:24px;
+    background: var(--manila-dark);
+    color:#4a3f22;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:.15em;
+    padding:3px 10px;
+    border-radius:3px 3px 0 0;
+    box-shadow: 0 -1px 0 rgba(0,0,0,.1);
+  }
+  .paper{
+    background: var(--paper);
+    background-image: repeating-linear-gradient(
+      to bottom, transparent 0 38px, var(--paper-line) 38px 39px
+    );
+    border-radius: 2px 10px 10px 2px;
+    padding: 34px 26px 26px;
+    min-height: 420px;
+  }
+
+  .progress-row{ display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+  .progress-track{ flex:1; height:8px; background:rgba(0,0,0,.12); border-radius:6px; overflow:hidden; }
+  .progress-fill{ height:100%; width:0%; background: linear-gradient(90deg, var(--gold), #7a5b1e); transition: width .35s ease; }
+  .progress-label{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); white-space:nowrap; }
+
+  .q-tag{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    letter-spacing:.12em; color:#fff; background: var(--ink-soft);
+    padding:3px 9px; border-radius:3px; margin-bottom:12px;
+  }
+  .q-text{ font-family:'Special Elite', monospace; font-size:19px; line-height:1.5; color:var(--ink); margin: 0 0 20px; }
+
+  .options{ display:flex; flex-direction:column; gap:10px; }
+  .opt{
+    display:flex; align-items:flex-start; gap:12px; text-align:left;
+    background: rgba(255,255,255,.35); border:1px solid rgba(74,63,34,.25);
+    border-radius:6px; padding:12px 14px; cursor:pointer;
+    font-family:'IBM Plex Sans', sans-serif; font-size:14.5px; color:var(--ink);
+    transition: transform .12s ease, background .15s ease, border-color .15s ease;
+  }
+  .opt:hover:not(.locked){ background: rgba(255,255,255,.6); transform: translateX(2px); }
+  .opt .letter{
+    flex:0 0 auto; width:26px; height:26px; border-radius:50%;
+    border:1.5px solid var(--muted); display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:12.5px; color:var(--muted);
+  }
+  .opt.correct{ background: rgba(47,93,58,.15); border-color: var(--stamp-green); }
+  .opt.correct .letter{ border-color: var(--stamp-green); color:var(--stamp-green); }
+  .opt.incorrect{ background: rgba(156,43,43,.12); border-color: var(--stamp-red); }
+  .opt.incorrect .letter{ border-color: var(--stamp-red); color:var(--stamp-red); }
+  .opt.locked{ cursor:default; }
+  .opt.dim{ opacity:.55; }
+
+  .explain{
+    margin-top:18px; padding:16px 16px 16px 46px; border-radius:6px;
+    background: rgba(0,0,0,.04); border-left: 3px solid var(--gold);
+    font-size:14px; line-height:1.55; position:relative; display:none;
+  }
+  .explain.show{ display:block; animation: fade .35s ease; }
+  .explain .stamp{
+    position:absolute; left:-6px; top:10px; transform: rotate(-8deg);
+    font-family:'Special Elite', monospace; font-size:13px; letter-spacing:.08em;
+    padding:4px 10px; border:2.5px solid currentColor; border-radius:4px;
+  }
+  .explain.ok .stamp{ color:var(--stamp-green); }
+  .explain.bad .stamp{ color:var(--stamp-red-dark); }
+  .explain strong{ color:var(--ink); }
+
+  @keyframes fade{ from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);} }
+
+  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:26px; flex-wrap:wrap; gap:10px; }
+  button.nav{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:.06em;
+    background: var(--ink); color: var(--manila); border:none; padding:11px 18px;
+    border-radius:5px; cursor:pointer; transition: background .15s ease, opacity .15s;
+  }
+  button.nav:hover{ background:#000; }
+  button.nav:disabled{ opacity:.35; cursor:not-allowed; }
+  button.nav.ghost{ background:transparent; color:var(--muted); border:1px solid rgba(74,63,34,.3); }
+  button.nav.danger{ background: var(--stamp-red-dark); color:#f4ecd8; }
+  button.nav.danger:hover{ background:#5c1717; }
+
+  .score-badge{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); }
+
+  .utility-row{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:10px; flex-wrap:wrap;
+  }
+  .restart-top{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:.04em;
+    background:transparent; border:1px solid rgba(74,63,34,.35); color:var(--muted);
+    padding:6px 12px; border-radius:16px; cursor:pointer; transition: background .15s ease;
+  }
+  .restart-top:hover{ background: rgba(0,0,0,.06); }
+  .autosave-note{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--muted); opacity:.75;
+  }
+
+  .summary{ text-align:center; padding:20px 6px 6px; }
+  .summary .big{ font-family:'Special Elite', monospace; font-size:42px; color: var(--ink); }
+  .summary p{ color: var(--muted); font-size:14px; }
+  .review-list{
+    text-align:left; margin-top:18px; display:flex; flex-direction:column; gap:8px;
+    max-height: 320px; overflow-y:auto; padding-right:4px;
+  }
+  .review-item{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; display:flex; gap:8px; align-items:baseline;
+    padding:6px 8px; border-radius:4px; background: rgba(0,0,0,.03);
+  }
+  .review-item .dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; margin-top:3px;}
+  .review-item.ok .dot{ background:var(--stamp-green); }
+  .review-item.bad .dot{ background:var(--stamp-red); }
+
+  .external-row{ text-align:center; margin-top:24px; }
+  .external-link-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:.05em;
+    background: transparent; color: var(--header-title); border:1px solid rgba(255,255,255,.3);
+    padding:11px 20px; border-radius:24px; text-decoration:none; transition: background .15s ease, transform .12s ease;
+  }
+  html[data-theme="light"] .external-link-btn{ border-color: rgba(0,0,0,.25); }
+  .external-link-btn:hover{ background: rgba(255,255,255,.1); transform: translateY(-1px); }
+  html[data-theme="light"] .external-link-btn:hover{ background: rgba(0,0,0,.06); }
+
+  footer.credit{
+    text-align:center; margin-top:28px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color: var(--footer-color);
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding-top:16px;
+  }
+  html[data-theme="light"] footer.credit{ border-top-color: rgba(0,0,0,.08); }
+  footer.credit .brand{ letter-spacing:.08em; }
+
+  @media (max-width:520px){
+    .paper{ padding:24px 16px 20px; }
+    .q-text{ font-size:17px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top-bar">
+    <button class="theme-toggle" id="themeToggle">
+      <span id="themeIcon">🌙</span><span id="themeLabel">Modo oscuro</span>
+    </button>
+  </div>
+
+  <div class="case-header">
+    <h1>Psicología Forense</h1>
+  </div>
+
+  <div class="folder">
+    <div class="paper">
+
+      <div id="quizView">
+        <div class="utility-row">
+          <span class="autosave-note" id="autosaveNote">Tu progreso se guarda automáticamente en este navegador</span>
+          <button class="restart-top" id="restartTopBtn">↺ Reiniciar intento</button>
+        </div>
+
+        <div class="progress-row">
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-label" id="progressLabel">1 / 26</div>
+        </div>
+
+        <div class="q-tag" id="qTag">EVIDENCIA 01</div>
+        <p class="q-text" id="qText"></p>
+        <div class="options" id="optionsBox"></div>
+        <div class="explain" id="explainBox">
+          <span class="stamp" id="stampText"></span>
+          <div id="explainText"></div>
+        </div>
+
+        <div class="nav-row">
+          <button class="nav ghost" id="prevBtn">« Anterior</button>
+          <span class="score-badge" id="scoreBadge">Aciertos: 0</span>
+          <button class="nav" id="nextBtn" disabled>Siguiente »</button>
+        </div>
+      </div>
+
+      <div id="summaryView" style="display:none;">
+        <div class="summary">
+          <div class="eyebrow" style="color:var(--muted); letter-spacing:.2em; font-family:'IBM Plex Mono',monospace; font-size:11px;">EXPEDIENTE CERRADO</div>
+          <div class="big" id="finalScore">0/26</div>
+          <p id="finalMsg"></p>
+          <div class="review-list" id="reviewList"></div>
+          <div class="nav-row" style="justify-content:center; margin-top:20px;">
+            <button class="nav danger" id="restartBtn">↺ Reiniciar intento</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="external-row">
+    <a class="external-link-btn" href="https://monsichavez07.github.io/factores_proteccion_riesgo_PC/" target="_blank" rel="noopener noreferrer">
+      🔗 Ver: Factores de Protección y Riesgo (PC)
+    </a>
+  </div>
+
+  <footer class="credit">
+    <span class="brand">&copy; 2026 A. A. Durand. Todos los derechos reservados.</span>
+  </footer>
+</div>
+
+<script>
+const QUESTIONS = [
+{tag:"Generalidades", q:"¿Qué es la Psicología Jurídica y qué procesos analiza?", opts:[
+ "Rama aplicada que estudia el comportamiento humano en relación con normas, leyes e instituciones del sistema de justicia, analizando la toma de decisiones judiciales y el cumplimiento normativo.",
+ "Disciplina que solo diagnostica trastornos mentales en reclusos.",
+ "Subespecialidad que estudia únicamente el comportamiento delictivo.",
+ "Rama de la criminología dedicada a la prevención del delito."
+], correct:0, exp:"La Psicología Jurídica es la rama aplicada más amplia: estudia el comportamiento humano frente a normas, leyes e instituciones, incluyendo la toma de decisiones judiciales y el cumplimiento normativo. La Forense, Criminológica y Victimología son sus vertientes."},
+
+{tag:"Generalidades", q:"¿Cómo se define la Psicología Forense dentro de la Psicología Jurídica?", opts:[
+ "Como el estudio del origen social del delito.",
+ "Como la subespecialidad de la psicología jurídica que realiza evaluaciones psicológicas con fines legales, respondiendo preguntas de jueces, fiscales o abogados mediante informes técnicos.",
+ "Como el tratamiento terapéutico de personas privadas de la libertad.",
+ "Como el estudio de la personalidad del delincuente."
+], correct:1, exp:"La Psicología Forense es una subespecialidad aplicada: evalúa con fines legales (imputabilidad, credibilidad del testimonio, daño psíquico, riesgo de reincidencia) y responde a solicitudes de la autoridad judicial mediante informes técnicos basados en evidencia."},
+
+{tag:"Generalidades", q:"¿Cuál es la función principal del psicólogo forense frente a jueces, fiscales o abogados?", opts:[
+ "Ofrecer terapia al evaluado.",
+ "Decidir la culpabilidad o inocencia del acusado.",
+ "Responder preguntas específicas mediante informes técnicos basados en evidencia científica.",
+ "Representar legalmente al acusado ante el tribunal."
+], correct:2, exp:"El psicólogo forense no juzga ni brinda terapia: su función es responder preguntas legales concretas (imputabilidad, testimonio, daño, riesgo) mediante un informe técnico-científico dirigido a la autoridad."},
+
+{tag:"Generalidades", q:"¿Cómo se define la Psicología Criminológica?", opts:[
+ "Evaluación individual para decisión legal.",
+ "Estudio de las víctimas del delito.",
+ "Rama del derecho penal encargada de dictar sentencias.",
+ "Área que estudia los factores psicológicos que influyen en la conducta delictiva: motivaciones, rasgos de personalidad, procesos cognitivos y aprendizaje social."
+], correct:3, exp:"A diferencia de la Forense (que evalúa a un individuo para el tribunal), la Criminológica busca explicar por qué ocurre el delito, analizando motivaciones, personalidad, cognición y aprendizaje social."},
+
+{tag:"Generalidades", q:"¿Cómo se define la Victimología?", opts:[
+ "Disciplina científica que estudia a las víctimas del delito, sus características, el impacto psicológico de la victimización y su relación con el agresor.",
+ "Estudia el origen social del delito en general.",
+ "Evalúa la imputabilidad del acusado.",
+ "Analiza el nivel de desarrollo moral del delincuente."
+], correct:0, exp:"La Victimología se centra en la víctima: sus características, el daño psicológico sufrido, su relación con el agresor y la respuesta institucional, buscando prevención, atención y reparación."},
+
+{tag:"Generalidades", q:"¿Cuál es la diferencia central entre Psicología Forense, Psicología Criminológica y Victimología?", opts:[
+ "Forense = explicación del delito; Criminológica = evaluación para tribunales; Victimología = marco legal.",
+ "Forense = evaluación para tribunales; Criminológica = explicación del delito; Victimología = estudio de la víctima.",
+ "Las tres son sinónimos y se usan indistintamente.",
+ "Forense = estudio de la víctima; Criminológica = marco legal; Victimología = evaluación para tribunales."
+], correct:1, exp:"Cada vertiente responde una pregunta distinta: la Forense evalúa para el tribunal, la Criminológica explica el delito, y la Victimología estudia a la víctima."},
+
+{tag:"Generalidades", q:"¿Por qué el sistema legal requiere evidencia psicológica válida en sus decisiones?", opts:[
+ "Porque la ley lo exige únicamente en casos penales graves.",
+ "Porque sustituye el testimonio de los testigos presenciales.",
+ "Porque el sistema legal toma decisiones sobre personas y necesita interpretación científica del comportamiento humano.",
+ "Porque determina automáticamente la sentencia del juez."
+], correct:2, exp:"El sistema legal decide sobre personas; por ello requiere que esas decisiones se apoyen en evidencia psicológica válida, aportada por un profesional que interpreta el comportamiento humano con rigor científico."},
+
+{tag:"Frenología", q:"¿Cuál es la definición de la frenología según sus postulados?", opts:[
+ "Una técnica moderna de neuroimagen para localizar tumores cerebrales.",
+ "Una disciplina jurídica que estudia el cráneo de los delincuentes con fines procesales.",
+ "Una teoría que niega cualquier relación entre el cerebro y la conducta.",
+ "Una teoría que postula que los aspectos psicológicos, intelectuales y morales dependen de la organización funcional del cerebro, y que cada facultad psicológica depende de una región cerebral específica."
+], correct:3, exp:"La frenología sostenía que lo psicológico, intelectual y moral depende de la organización funcional del cerebro, y que cada facultad tiene asiento en una región cerebral cuyo desarrollo (masa) determina su calidad y grado."},
+
+{tag:"Frenología", q:"¿Quién fue el fundador de la frenología?", opts:[
+ "Franz Joseph Gall",
+ "Pierre Paul Broca",
+ "Carl Wernicke",
+ "Marie Jean Pierre Flourens"
+], correct:0, exp:"Franz Joseph Gall es reconocido como el fundador de la frenología, la doctrina que buscaba localizar facultades mentales en regiones específicas del cerebro."},
+
+{tag:"Frenología", q:"¿Qué consideraba Gall respecto a las funciones mentales y el cerebro?", opts:[
+ "Que las funciones mentales no tienen relación alguna con el cerebro.",
+ "Que existían funciones mentales con una localización diferenciada en el cerebro.",
+ "Que el cerebro funciona siempre como un todo indivisible, sin regiones especializadas.",
+ "Que solo el hemisferio derecho controla la conducta humana."
+], correct:1, exp:"Gall proponía que las funciones mentales estaban localizadas de forma diferenciada en distintas regiones del cerebro, idea central del localizacionismo frenológico."},
+
+{tag:"Frenología", q:"Además de fundar la frenología, ¿qué otros aportes se le atribuyen a Gall?", opts:[
+ "Descubrir el área de Broca y el área de Wernicke.",
+ "Desarrollar la teoría del aprendizaje social del delito.",
+ "Diferenciar materia blanca de materia gris y descubrir nervios craneales con origen en la médula espinal.",
+ "Crear las etapas del desarrollo moral de Kohlberg."
+], correct:2, exp:"Gall enfatizó el mayor desarrollo del lóbulo frontal en humanos, diferenció materia blanca de materia gris y descubrió nervios craneales con origen en la médula espinal."},
+
+{tag:"Frenología", q:"Según la frenología, ¿de qué dependen los aspectos psicológicos, intelectuales y morales de una persona?", opts:[
+ "De la educación recibida, exclusivamente.",
+ "Únicamente del entorno social en que se desarrolla.",
+ "De factores genéticos heredados solo por línea materna.",
+ "De la organización funcional del cerebro."
+], correct:3, exp:"La frenología planteaba que estos aspectos dependen de la organización funcional del cerebro, con cada facultad ligada a una región cerebral concreta."},
+
+{tag:"Frenología", q:"Según la frenología, ¿de qué depende la calidad y el grado de una facultad psicológica?", opts:[
+ "Del desarrollo de la masa cerebral asociada a la región correspondiente.",
+ "No existe relación entre facultad y masa cerebral.",
+ "Dependen únicamente de la edad de la persona.",
+ "Dependen del tamaño total del cráneo, sin relación con regiones específicas."
+], correct:0, exp:"Para la frenología, mientras mayor el desarrollo de la masa cerebral en la región asociada a una facultad, mayor la calidad y el grado de esa facultad psicológica."},
+
+{tag:"Frenología", q:"¿Las facultades psicológicas, morales e intelectuales se consideraban innatas o adquiridas según la frenología?", opts:[
+ "Adquiridas exclusivamente por aprendizaje durante la vida.",
+ "Innatas, con posibilidad de ser heredadas.",
+ "Determinadas solo por el ambiente en que se crece.",
+ "Aparecen de forma aleatoria, sin patrón hereditario."
+], correct:1, exp:"La frenología sostenía que estas facultades son innatas y con posibilidad de ser heredadas, no producto exclusivo del aprendizaje o el ambiente."},
+
+{tag:"Frenología", q:"¿Qué crítica hizo Marie Jean Pierre Flourens al localizacionismo (como el de la frenología)?", opts:[
+ "Apoyó totalmente los postulados de la frenología.",
+ "Afirmó que el lenguaje se localiza únicamente en el área de Broca.",
+ "Consideró imposible localizar con precisión las funciones cerebrales, ya que las estructuras cerebrales interactúan entre sí creando sistemas funcionales.",
+ "Propuso la teoría del autocontrol aplicada al delito."
+], correct:2, exp:"Flourens cuestionó el localizacionismo estricto: para él, las funciones cerebrales no podían aislarse en regiones exactas porque distintas estructuras interactúan formando sistemas funcionales."},
+
+{tag:"Funciones y peritaje", q:"¿Cuáles son funciones propias del psicólogo forense?", opts:[
+ "Brindar psicoterapia, prescribir medicación y dictar sentencia.",
+ "Investigar la escena del crimen y recolectar evidencia física.",
+ "Defender legalmente al imputado ante el juez.",
+ "Evaluar estado mental, determinar capacidad cognitiva y volitiva, y analizar la credibilidad del testimonio."
+], correct:3, exp:"Entre las funciones del psicólogo forense están evaluar el estado mental, determinar capacidad cognitiva/volitiva, analizar credibilidad del testimonio, evaluar daño psicológico y estimar riesgo de reincidencia."},
+
+{tag:"Funciones y peritaje", q:"¿Qué es el peritaje psicológico y cuál es su finalidad jurídica?", opts:[
+ "Es un medio de prueba que aporta información psicológica objetiva para ayudar al juzgador a comprender aspectos mentales/conductuales del caso, sin determinar culpabilidad ni inocencia.",
+ "Es el instrumento que determina la culpabilidad o inocencia del acusado.",
+ "Es un documento que sustituye a la sentencia judicial.",
+ "Es un procedimiento exclusivo del derecho laboral."
+], correct:0, exp:"El peritaje psicológico es el producto técnico-científico central del ejercicio forense: un medio de prueba que informa al juzgador, pero que no decide culpabilidad ni inocencia."},
+
+{tag:"Funciones y peritaje", q:"¿Qué metodologías se consideran válidas dentro del peritaje psicológico?", opts:[
+ "Lectura de cartas natales y grafología.",
+ "Entrevista clínica estructurada y pruebas psicométricas estandarizadas.",
+ "El polígrafo como único método aceptado legalmente.",
+ "Hipnosis regresiva para recuperar recuerdos."
+], correct:1, exp:"El material señala como metodología válida la entrevista clínica estructurada, pruebas psicométricas estandarizadas, técnicas de evaluación de simulación y análisis conductual/contextual."},
+
+{tag:"Imputabilidad", q:"¿Cómo se define la imputabilidad y cuáles son sus requisitos psicológicos?", opts:[
+ "Es la incapacidad legal para ser juzgado por cualquier delito.",
+ "Es un beneficio que solo se aplica a menores de edad.",
+ "Es la capacidad del individuo para comprender la ilegalidad de sus actos y actuar conforme a esa comprensión; requiere conciencia de realidad, juicio moral básico y control conductual.",
+ "Es sinónimo legal de inocencia."
+], correct:2, exp:"La imputabilidad es la capacidad de comprender la ilegalidad de un acto y actuar conforme a ello, y requiere conciencia de realidad, juicio moral básico y control conductual."},
+
+{tag:"Imputabilidad", q:"¿Cuándo se determina la inimputabilidad de una persona?", opts:[
+ "Cuando el sujeto confiesa espontáneamente el delito.",
+ "Cuando existen antecedentes penales previos.",
+ "Cuando el delito cometido es de baja gravedad.",
+ "Cuando un trastorno mental, discapacidad intelectual grave o alteración psíquica impide comprender o controlar la conducta."
+], correct:3, exp:"La inimputabilidad se determina cuando un trastorno mental, discapacidad intelectual grave o alteración psíquica impide al sujeto comprender o controlar su conducta al momento del delito."},
+
+{tag:"Teorías forenses", q:"Según la teoría del razonamiento moral de Kohlberg, ¿en qué nivel se ubican con frecuencia los delincuentes reincidentes?", opts:[
+ "Nivel preconvencional.",
+ "Nivel convencional.",
+ "Nivel postconvencional.",
+ "No existe relación entre el nivel moral y la reincidencia."
+], correct:0, exp:"El material señala que los delincuentes frecuentes muestran niveles preconvencionales de desarrollo moral (obediencia por castigo o interés propio), lejos de los principios éticos abstractos del nivel postconvencional."},
+
+{tag:"Teorías forenses", q:"¿Qué es la sugestibilidad y cuál es su relevancia forense?", opts:[
+ "Implica siempre mentira intencional por parte del declarante.",
+ "Es la susceptibilidad a aceptar información externa como propia, que se incrementa con estrés, fatiga o miedo, y ayuda a explicar confesiones falsas.",
+ "Es un fenómeno que solo ocurre en menores de edad.",
+ "No tiene relación alguna con los interrogatorios."
+], correct:1, exp:"La sugestibilidad no implica mentira; es la susceptibilidad a aceptar información externa como propia, aumenta bajo presión y explica por qué pueden producirse confesiones falsas."},
+
+{tag:"Teorías forenses", q:"¿En qué consiste el efecto 'weapon focus' (focalización del arma) en la psicología del testimonio?", opts:[
+ "Mejora el recuerdo de todos los detalles del evento delictivo.",
+ "Aumenta específicamente la memoria del rostro del agresor.",
+ "La presencia de un arma reduce la capacidad del testigo para recordar otros detalles relevantes, especialmente el rostro del agresor.",
+ "Es un sesgo que afecta exclusivamente a los policías presentes."
+], correct:2, exp:"El weapon focus describe cómo la atención se concentra casi exclusivamente en el arma durante un evento delictivo, deteriorando la codificación de información periférica, como el rostro del agresor."},
+
+{tag:"Teorías forenses", q:"¿Por qué debe el psicólogo forense diferenciar entre error de memoria y engaño deliberado en un testimonio?", opts:[
+ "Son equivalentes y no requieren distinción.",
+ "Porque el engaño deliberado siempre indica culpabilidad del declarante.",
+ "Porque el error de memoria invalida automáticamente cualquier testimonio.",
+ "Porque el psicólogo no determina culpabilidad, sino que evalúa la calidad psicológica del testimonio, y confundir ambos llevaría a conclusiones erróneas."
+], correct:3, exp:"Éticamente, el psicólogo forense no determina culpabilidad: evalúa la calidad psicológica del testimonio, por lo que debe distinguir con cuidado entre una distorsión de memoria y un engaño intencional."},
+
+{tag:"Aplicación en derecho", q:"¿Qué aplicaciones tiene la Psicología Forense en el derecho penal y en el derecho familiar?", opts:[
+ "Penal: evaluación de imputabilidad y riesgo de reincidencia; Familiar: custodia, patria potestad y competencias parentales.",
+ "Penal: daño moral y custodia infantil; Familiar: riesgo de reincidencia y acoso laboral.",
+ "Penal: capacidad jurídica; Familiar: daño psicológico ocupacional.",
+ "Ambas áreas evalúan exclusivamente daño psicológico ocupacional."
+], correct:0, exp:"En derecho penal, la Psicología Forense evalúa imputabilidad, riesgo de reincidencia y perfilación conductual; en derecho familiar, custodia, patria potestad, competencias parentales y alienación."},
+
+{tag:"Interacción disciplinar", q:"¿Cuál es la diferencia entre lo que responde la Psicología Criminológica y lo que responde la Psicología Forense ante un caso?", opts:[
+ "Ambas responden exactamente la misma pregunta.",
+ "La Psicología Criminológica responde por qué ocurre el delito; la Psicología Forense responde qué características tiene el implicado en el caso.",
+ "La Forense explica el origen social del delito y la Criminológica evalúa individualmente al implicado.",
+ "Ninguna de las dos responde preguntas relacionadas con el delito."
+], correct:1, exp:"La Criminológica busca explicar por qué ocurre el delito (causas, factores), mientras que la Forense evalúa individualmente al implicado para responder preguntas concretas del caso legal."}
+];
+
+const STORAGE_KEY = 'quiz_psicologia_forense_progress_v1';
+const THEME_KEY = 'quiz_psicologia_forense_theme_v1';
+
+let current = 0;
+let answered = new Array(QUESTIONS.length).fill(null);
+
+const qTag = document.getElementById('qTag');
+const qText = document.getElementById('qText');
+const optionsBox = document.getElementById('optionsBox');
+const explainBox = document.getElementById('explainBox');
+const stampText = document.getElementById('stampText');
+const explainText = document.getElementById('explainText');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
+const scoreBadge = document.getElementById('scoreBadge');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const quizView = document.getElementById('quizView');
+const summaryView = document.getElementById('summaryView');
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeLabel = document.getElementById('themeLabel');
+
+const LETTERS = ['A','B','C','D'];
+
+/* ---------- Persistencia de progreso ---------- */
+function saveProgress(){
+  try{
+    const data = { current, answered };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }catch(e){ /* almacenamiento no disponible, se ignora silenciosamente */ }
+}
+
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if(Array.isArray(data.answered) && data.answered.length === QUESTIONS.length){
+      answered = data.answered;
+      current = Math.min(data.current || 0, QUESTIONS.length - 1);
+      return true;
+    }
+  }catch(e){ /* dato corrupto, se ignora */ }
+  return false;
+}
+
+function clearProgress(){
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+}
+
+/* ---------- Modo claro / oscuro ---------- */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  if(theme === 'dark'){
+    themeIcon.textContent = '🌙';
+    themeLabel.textContent = 'Modo oscuro';
+  } else {
+    themeIcon.textContent = '☀️';
+    themeLabel.textContent = 'Modo claro';
+  }
+  try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+}
+
+function loadTheme(){
+  let theme = 'dark';
+  try{
+    const saved = localStorage.getItem(THEME_KEY);
+    if(saved === 'light' || saved === 'dark') theme = saved;
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) theme = 'light';
+  }catch(e){}
+  applyTheme(theme);
+}
+
+themeToggle.addEventListener('click', () => {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+});
+
+/* ---------- Render del quiz ---------- */
+function renderQuestion(){
+  const item = QUESTIONS[current];
+  qTag.textContent = 'EVIDENCIA ' + String(current+1).padStart(2,'0') + ' · ' + item.tag.toUpperCase();
+  qText.textContent = item.q;
+  optionsBox.innerHTML = '';
+  explainBox.classList.remove('show','ok','bad');
+
+  item.opts.forEach((opt, idx) => {
+    const div = document.createElement('div');
+    div.className = 'opt';
+    div.innerHTML = '<span class="letter">' + LETTERS[idx] + '</span><span>' + opt + '</span>';
+    div.addEventListener('click', () => selectOption(idx));
+    optionsBox.appendChild(div);
+  });
+
+  const prior = answered[current];
+  if(prior !== null){
+    lockOptions(prior, true);
+  }
+
+  progressFill.style.width = ((current) / (QUESTIONS.length-1) * 100) + '%';
+  progressLabel.textContent = (current+1) + ' / ' + QUESTIONS.length;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = prior === null;
+  nextBtn.textContent = current === QUESTIONS.length - 1 ? 'Cerrar expediente »' : 'Siguiente »';
+  updateScore();
+  saveProgress();
+}
+
+function selectOption(idx){
+  if(answered[current] !== null) return;
+  answered[current] = idx;
+  lockOptions(idx, false);
+  nextBtn.disabled = false;
+  updateScore();
+  saveProgress();
+}
+
+function lockOptions(selectedIdx, silent){
+  const item = QUESTIONS[current];
+  const opts = optionsBox.children;
+  for(let i=0;i<opts.length;i++){
+    opts[i].classList.add('locked');
+    if(i === item.correct){
+      opts[i].classList.add('correct');
+    } else if(i === selectedIdx){
+      opts[i].classList.add('incorrect');
+    } else {
+      opts[i].classList.add('dim');
+    }
+  }
+  const isCorrect = selectedIdx === item.correct;
+  explainBox.classList.add('show', isCorrect ? 'ok' : 'bad');
+  stampText.textContent = isCorrect ? 'CORRECTO' : 'INCORRECTO';
+  explainText.innerHTML = '<strong>Explicación:</strong> ' + item.exp;
+}
+
+function updateScore(){
+  const correctCount = answered.reduce((acc, val, i) => acc + (val === QUESTIONS[i].correct ? 1 : 0), 0);
+  scoreBadge.textContent = 'Aciertos: ' + correctCount;
+}
+
+prevBtn.addEventListener('click', () => {
+  if(current > 0){ current--; renderQuestion(); }
+});
+
+nextBtn.addEventListener('click', () => {
+  if(current < QUESTIONS.length - 1){
+    current++;
+    renderQuestion();
+  } else {
+    showSummary();
+  }
+});
+
+function showSummary(){
+  quizView.style.display = 'none';
+  summaryView.style.display = 'block';
+  const correctCount = answered.reduce((acc, val, i) => acc + (val === QUESTIONS[i].correct ? 1 : 0), 0);
+  document.getElementById('finalScore').textContent = correctCount + '/' + QUESTIONS.length;
+  let msg;
+  const pct = correctCount / QUESTIONS.length;
+  if(pct >= 0.9) msg = 'Dominio sólido del expediente. Perito calificado.';
+  else if(pct >= 0.7) msg = 'Buen manejo del caso, revisa los puntos marcados en rojo.';
+  else if(pct >= 0.5) msg = 'Vas por buen camino; conviene repasar las secciones falladas.';
+  else msg = 'El expediente necesita más revisión antes de presentarlo ante el tribunal.';
+  document.getElementById('finalMsg').textContent = msg;
+
+  const list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  QUESTIONS.forEach((item, i) => {
+    const ok = answered[i] === item.correct;
+    const row = document.createElement('div');
+    row.className = 'review-item ' + (ok ? 'ok' : 'bad');
+    row.innerHTML = '<span class="dot"></span><span>' + String(i+1).padStart(2,'0') + '. ' + item.q.slice(0,70) + (item.q.length>70?'…':'') + '</span>';
+    list.appendChild(row);
+  });
+}
+
+function restartQuiz(){
+  current = 0;
+  answered = new Array(QUESTIONS.length).fill(null);
+  clearProgress();
+  summaryView.style.display = 'none';
+  quizView.style.display = 'block';
+  renderQuestion();
+}
+
+document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+document.getElementById('restartTopBtn').addEventListener('click', () => {
+  if(confirm('¿Reiniciar el intento? Se perderá el progreso guardado.')){
+    restartQuiz();
+  }
+});
+
+/* ---------- Inicio ---------- */
+loadTheme();
+const hadProgress = loadProgress();
+const allAnswered = answered.every(a => a !== null);
+if(hadProgress && allAnswered){
+  showSummary();
+} else {
+  renderQuestion();
+}
+</script>
+</body>
+</html>
